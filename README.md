@@ -1,7 +1,7 @@
 # decider-tetris
 
 **A 2B decision model plays Tetris by reading sentences. This is the log of what it took to get it
-from 41 rows to 14,338 — and what each step says about tuning a local system-one model.**
+from 41 rows to 16,714 — and what each step says about tuning a local system-one model.**
 
 ![Dellacherie and Decider-2B level at 380 rows after 954 pieces](docs/race.png)
 
@@ -48,20 +48,25 @@ every piece, so every run carries its own baseline.
 
 | | pieces | rows |
 |---|---|---|
-| Decider-2B, every rule below | 35,874 | 14,338 |
+| Decider-2B, every rule below | 41,821 | 16,714 |
 | Dellacherie heuristic, same seed, stopped at the row cap | 75,004 | 30,000 |
 | Dellacherie heuristic, as published | — | about 600,000 a game |
 
 The heuristic is not beaten in that table; it is interrupted. Six hundred thousand rows is the
 distance still to go, and it is the honest frame for everything below.
 
-**Rows are a saturated measure here.** Over the 14,338-row game the stack averaged 4.7 rows high
-with 0.6 buried cells, and every 2,500 pieces cleared exactly 1,000 rows: 2,500 pieces are 10,000
+**Rows are a saturated measure here.** Over the 16,714-row game the stack averaged 4.5 rows high
+with 0.5 buried cells, and every 2,500 pieces cleared exactly 1,000 rows: 2,500 pieces are 10,000
 cells and 1,000 rows are 10,000 cells, so no cell is wasted. Rows are pieces times 0.4, and the
 only thing that varies is when the run dies. The ruler used here is the climb — every time the
 stack passes twelve rows is one sample, and the game ends when one climb does not come back down.
-The 14,338-row game survived 63 climbs; the 5,893-row game survived 19. Sixty samples a game beats
+The 16,714-row game survived 66 climbs; the 5,893-row game survived 19. Sixty samples a game beats
 one.
+
+That also sets the scale of what is left. One climb in 66 is not survived. To reach 600,000 rows
+the run has to survive about 2,600 of them, so the chance of losing a climb has to fall roughly
+forty times. No single change here has moved it: the last three rows of the table below each won by
+climbing less often, not by coming back down more often.
 
 ## How it got there
 
@@ -79,7 +84,8 @@ one.
 | when the red line has to bury, offer only the landings that bury fewest | 3,396 |
 | hide the landings that leave a gap three or more rows deep, while a shallower one exists | 5,893 |
 | above fifteen rows, let a burying landing through when fewer than three clean ones remain | 9,981 |
-| drop the landings that leave the next piece no landing of its own that buries nothing | **14,338** |
+| drop the landings that leave the next piece no landing of its own that buries nothing | 14,338 |
+| above seven rows, read instructions that put clearing first instead of sixth | **16,714** |
 
 ## What the model turned out to be like
 
@@ -126,6 +132,7 @@ Each line is a measurement, and each one cost a few hundred games.
 | letting a burying landing through when it clears two rows | 2,803 against 5,893 |
 | rewording which part of the stack the landing sits on | 3,882 against 5,893 |
 | raising the second-reading threshold from 0.15 to 0.3 | 2,462 against 5,893 |
+| above seven rows, read instructions that put *not raising the stack* first and clearing second | 6,018 against 16,714 for the same threshold with clearing first. The reasoning that picked it was wrong in an instructive way: on the boards before each death a clearing landing survives the red lines in 10 to 20 per cent of the moments above eight rows and a landing that does not raise the top in 67 to 89 per cent, so it looked like the instruction the model could act on. It acted on it — by taking the flat landings that cover cells. Buried cells rose from 0.52 to 0.70 and the stack was no lower. An instruction that fires on every piece competes with every other goal; one that fires rarely and decides the board when it does is worth more |
 | predicting a climb from the board | four measures tried at the moment the stack first passes eight rows — buried cells, unevenness, surviving landings, and how many of the seven pieces the stack can take without growing taller. None separates the 36 excursions that ran away from the 375 that did not |
 
 ### Decider-2B v10 against v8
