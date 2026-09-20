@@ -4,8 +4,8 @@
 
 `race.py`: the published heuristic on the left, the model on the right, one piece sequence between
 them. Under each board is what that player acted on — the heuristic's weighted score, and for the
-model the option text it picked and the probability it gave it. The still is the last frame of
-[docs/race.webm](docs/race.webm), where the two finish level at 380 rows.
+model the option text it picked and the probability it gave it. This is the last frame of a
+91-second run, where the two finish level at 380 rows.
 
 Tetris played by a small decision model. Python enumerates every landing the piece can reach and
 states what each one does to the stack; the model only picks one. It never sees the board, counts
