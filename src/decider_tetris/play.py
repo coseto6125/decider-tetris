@@ -39,6 +39,12 @@ WORDINGS = {
     "gaps": ("Pick where to drop this piece in a game of Tetris. A good placement clears rows, traps no "
              "cell, keeps the stack low, keeps the surface flat and opens no one-wide gap. A trapped "
              "cell stays trapped until every row above it is cleared."),
+    # The costly disagreements share one shape: the heuristic's landing sat against a wall and the
+    # model's did not. The option already says so; only the instructions never said it was good.
+    "walls": ("Pick where to drop this piece in a game of Tetris. A good placement clears rows, traps no "
+              "cell, keeps the stack low, keeps the surface flat, opens no one-wide gap and sits against a "
+              "wall rather than in the middle. A trapped cell stays trapped until every row above it is "
+              "cleared."),
     "ordered": ("Pick where to drop this piece in a game of Tetris, in this order of importance. First, "
                 "trap no cell: a trapped cell stays trapped until every row above it is cleared. Second, "
                 "clear rows. Third, keep the surface flat and open no one-wide gap, because only an I "
@@ -292,7 +298,7 @@ def main():
     parser.add_argument("--decider", help="base URL of the decision model; omitted runs the heuristic alone")
     parser.add_argument("--rate", choices=("choice", "noul", "score"), default="choice",
                         help="choice runs a tournament; noul and score give every landing its own number")
-    parser.add_argument("--wording", choices=tuple(WORDINGS), default="gaps")
+    parser.add_argument("--wording", choices=tuple(WORDINGS), default="walls")
     parser.add_argument("--group", type=int, default=GROUP, help="options per question; 255 asks them all at once")
     parser.add_argument("--order", choices=tuple(ORDERS), default="shuffle")
     parser.add_argument("--settle", type=float, default=0.0,

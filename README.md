@@ -18,16 +18,17 @@ Same pieces, same seeds, 500-piece cap, five games each.
 
 | | rows cleared | games that reached 500 pieces |
 |---|---|---|
-| Decider-2B | 974 | 5 / 5 |
+| Decider-2B | 987 | 5 / 5 |
 | Dellacherie heuristic | 987 | 5 / 5 |
 
-The model plays at 98.7% of a hand-tuned weighted evaluation while comparing short English
-sentences, without arithmetic, and agrees with the heuristic's pick on only about two thirds of
-the landings: most of the disagreements are between moves that are both fine.
+The model matches a hand-tuned weighted evaluation while comparing short English sentences,
+without arithmetic, and while agreeing with that evaluation's pick on only 72% of the landings:
+most of the disagreements are between moves that are both fine.
 
-Lift the cap and the difference finally shows. On one seed, side by side on the same pieces, the
-model died on piece 1759 with 688 rows; the heuristic was on 701 at that moment and was still
-playing, on an almost empty board, at piece 1875.
+Lift the cap and the difference shows. Side by side on the same pieces, an earlier version of the
+model died on piece 1759 with 688 rows while the heuristic played on to piece 15232 and 6092 rows
+on an almost empty board. The published controllers are measured in millions of rows per game, so
+the table above says what happens over 500 pieces and nothing about that regime.
 
 ## How it got there
 
@@ -42,12 +43,18 @@ Nothing below is a reworded prompt. Each step changes what the model is told or 
 | (the four rows above ran to a 150-piece cap; from here the cap is 500) | 728 | 991 |
 | put every landing in one question instead of a tournament of tens | 898 | 991 |
 | read the list backwards and add the probabilities when the top two are within 0.15 | 974 | 987 |
+| say in the instructions that a landing against a wall beats one in the middle | 987 | 987 |
 
 The two large jumps are both about information, not persuasion:
 
 * **The red line.** A landing that buries a cell while a clean landing is on offer is never right,
   so the code removes it before the model sees it. Trapping fell from a fifth of all placements to
   almost none, and the model still ranks everything that remains.
+* **A fact nobody asked for.** Cloning the board at every disagreement and letting the heuristic
+  play both sides forward showed which differences cost rows: the expensive ones nearly all had
+  the heuristic landing against a wall and the model landing in the middle. The option text had
+  said `It sits against the left wall` all along; the instructions had never said that was good.
+  `regret.py` runs that comparison.
 * **A fact that does not saturate.** "The stack is high" was true of every option above twelve
   rows, exactly where the choice decides the game. "It raises the top of the stack by two rows"
   keeps its edge at any height.
