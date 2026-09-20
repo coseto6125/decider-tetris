@@ -1,5 +1,11 @@
 # decider-tetris
 
+![Dellacherie and Decider-2B on the same pieces, both reaching 380 rows](docs/race.gif)
+
+`race.py`: the published heuristic on the left, the model on the right, one piece sequence between
+them. The loop above is the whole run at eight frames a second; [docs/race.webm](docs/race.webm) is
+the recording it came from.
+
 Tetris played by a small decision model. Python enumerates every landing the piece can reach and
 states what each one does to the stack; the model only picks one. It never sees the board, counts
 a cell or compares a number.
@@ -12,11 +18,7 @@ about 45 ms per question.
 The published [Dellacherie evaluation](https://hal.science/hal-00926213/document) scores the same
 landings on every piece, so every run carries its own baseline.
 
-![Dellacherie and Decider-2B on the same pieces, both reaching 380 rows](docs/race.gif)
-
-`race.py`: the published heuristic on the left, the model on the right, one piece sequence between
-them. The loop above is the whole run at ten frames a second; [docs/race.webm](docs/race.webm) is
-the recording it came from. Under each board is the sentence that player acted on — the heuristic's
+ Under each board is the sentence that player acted on — the heuristic's
 weighted score, and for the model the option text it picked and the probability it gave it. They
 finish the recording level, 380 rows each at 954 pieces.
 
