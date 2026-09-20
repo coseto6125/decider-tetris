@@ -12,6 +12,8 @@ about 45 ms per question.
 The published [Dellacherie evaluation](https://hal.science/hal-00926213/document) scores the same
 landings on every piece, so every run carries its own baseline.
 
+<video src="https://github.com/coseto6125/decider-tetris/raw/main/docs/race.webm" poster="https://github.com/coseto6125/decider-tetris/raw/main/docs/race.png" controls width="100%"></video>
+
 [![Dellacherie and Decider-2B on the same pieces, both at 380 rows](docs/race.png)](docs/race.webm)
 
 `race.py`, 91 seconds: the published heuristic on the left, the model on the right, one piece
