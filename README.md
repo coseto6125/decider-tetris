@@ -1,10 +1,11 @@
 # decider-tetris
 
-![Dellacherie and Decider-2B on the same pieces, both reaching 380 rows](docs/race.gif)
+![Dellacherie and Decider-2B level at 380 rows after 954 pieces](docs/race.png)
 
 `race.py`: the published heuristic on the left, the model on the right, one piece sequence between
-them. The loop above is the whole run at eight frames a second; [docs/race.webm](docs/race.webm) is
-the recording it came from.
+them. Under each board is what that player acted on — the heuristic's weighted score, and for the
+model the option text it picked and the probability it gave it. The still is the last frame of
+[docs/race.webm](docs/race.webm), where the two finish level at 380 rows.
 
 Tetris played by a small decision model. Python enumerates every landing the piece can reach and
 states what each one does to the stack; the model only picks one. It never sees the board, counts
