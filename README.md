@@ -12,6 +12,13 @@ about 45 ms per question.
 The published [Dellacherie evaluation](https://hal.science/hal-00926213/document) scores the same
 landings on every piece, so every run carries its own baseline.
 
+[![Dellacherie and Decider-2B on the same pieces, both at 380 rows](docs/race.png)](docs/race.webm)
+
+`race.py`, 91 seconds: the published heuristic on the left, the model on the right, one piece
+sequence between them. Under each board is the sentence that player acted on — the heuristic's
+weighted score, and for the model the option text it picked and the probability it gave it. They
+finish the recording level, 380 rows each at 954 pieces.
+
 ## Result
 
 Same pieces, same seeds, 500-piece cap, five games each.
