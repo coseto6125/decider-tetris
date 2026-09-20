@@ -109,6 +109,27 @@ list once forwards and, only when the top two are within 0.15, once backwards co
 questions per piece and removes it. No random draw is involved, so one board always produces one
 decision.
 
+**The sentences already carry the baseline's whole feature set.** Each of Dellacherie's six
+features was correlated against the sentence meant to carry it, over 2,063 offered landings on the
+boards recorded before each death:
+
+| feature | weight | the sentence carrying it | correlation |
+|---|---|---|---|
+| buried cells | −7.90 | "Traps N cells" | 1.00 |
+| column transitions | −9.35 | "Traps N cells" | 0.95 |
+| eroded cells | +3.42 | "Clears N rows" | 0.94 |
+| row transitions | −3.22 | the evenness sentence | 0.91 |
+| wells | −3.39 | "opens a one-wide gap" | direct |
+| landing height | −4.50 | the height and part-of-the-stack sentences | 0.51 / 0.42 |
+
+Nothing the baseline weighs is invisible to the model. The heaviest feature of all, column
+transitions, turns out to be almost the same number as the buried cells already in the first
+sentence. Writing the one weak row as its own sentence was tried and lost, twice. So the remaining
+distance to 600,000 rows is not what the model can see; it is that six sentences carry no weights,
+and the baseline's strength is six numbers multiplied by tuned ones. That also explains the shape
+of this log: every gain since the tie-break fix came from a red line removing an option, and every
+attempt to describe the options better has lost.
+
 **Code should delete, not persuade.** A landing that buries a cell while a clean landing is on
 offer is never right, so the code removes it before the model sees it. On the boards recorded
 before each death the red lines take 22.8 reachable landings down to 3.3, the one-piece lookahead
@@ -133,6 +154,7 @@ Each line is a measurement, and each one cost a few hundred games.
 | rewording which part of the stack the landing sits on | 3,882 against 5,893 |
 | raising the second-reading threshold from 0.15 to 0.3 | 2,462 against 5,893 |
 | telling the model, above seven rows, not to raise the top of the stack | see below — the clause costs rows in proportion to how highly it ranks |
+| saying how far under the top of the stack the piece comes to rest, in place of the part-of-the-stack sentence | 11,768 against 16,714. It was the one Dellacherie feature no sentence carried well (its landing height, tracked at 0.51 by the height sentence and 0.42 by the part-of-the-stack one), and a cheap screen confirmed the rewrite separates landings the old sentence left identical on 41 of 406 boards. It still lost, the same way and for the same reason as the clause above: told to notice how low it lands, the model landed low, and on an uneven surface landing low means landing in a notch that then gets covered. Buried cells went from 0.52 to 0.83 |
 | predicting a climb from the board | four measures tried at the moment the stack first passes eight rows — buried cells, unevenness, surviving landings, and how many of the seven pieces the stack can take without growing taller. None separates the 36 excursions that ran away from the 375 that did not |
 
 ### One clause, ranked three ways
