@@ -132,8 +132,33 @@ Each line is a measurement, and each one cost a few hundred games.
 | letting a burying landing through when it clears two rows | 2,803 against 5,893 |
 | rewording which part of the stack the landing sits on | 3,882 against 5,893 |
 | raising the second-reading threshold from 0.15 to 0.3 | 2,462 against 5,893 |
-| above seven rows, read instructions that put *not raising the stack* first and clearing second | 6,018 against 16,714 for the same threshold with clearing first. The reasoning that picked it was wrong in an instructive way: on the boards before each death a clearing landing survives the red lines in 10 to 20 per cent of the moments above eight rows and a landing that does not raise the top in 67 to 89 per cent, so it looked like the instruction the model could act on. It acted on it — by taking the flat landings that cover cells. Buried cells rose from 0.52 to 0.70 and the stack was no lower. An instruction that fires on every piece competes with every other goal; one that fires rarely and decides the board when it does is worth more |
+| telling the model, above seven rows, not to raise the top of the stack | see below — the clause costs rows in proportion to how highly it ranks |
 | predicting a climb from the board | four measures tried at the moment the stack first passes eight rows — buried cells, unevenness, surviving landings, and how many of the seven pieces the stack can take without growing taller. None separates the 36 excursions that ran away from the 375 that did not |
+
+### One clause, ranked three ways
+
+Above seven rows the run reads a second set of instructions. Three versions of it carry the same
+clauses of the default in different orders, and they differ only in where "do not raise the top of
+the stack" sits. Same seed, same flags, one game each:
+
+| where the clause ranks | rows | buried cells per piece |
+|---|---|---|
+| the clause is absent, clearing first | **16,714** | 0.52 |
+| second, behind clearing | 15,514 | 0.61 |
+| first, ahead of clearing | 6,018 | 0.70 |
+| *(no second set of instructions at all)* | 14,338 | 0.62 |
+
+The reasoning that picked the losing version was wrong in a useful way. On the boards recorded
+before each death a clearing landing survives the red lines in 10 to 20 per cent of the moments
+above eight rows, and a landing that does not raise the top in 67 to 89 per cent — so "do not raise
+the top" looked like the instruction the model could act on almost every piece. It acted on it, by
+taking the flat landings that cover cells.
+
+One game each would be two samples of a heavy-tailed variable and would prove nothing. Three
+versions in rank order, with buried cells rising monotonically with the rank, is not a sampling
+accident. **Actionability is not usefulness.** An instruction that fires on nearly every piece
+competes with every other goal; one that fires rarely and decides the board when it does is worth
+more.
 
 ### Decider-2B v10 against v8
 
