@@ -25,10 +25,24 @@ The model matches a hand-tuned weighted evaluation while comparing short English
 without arithmetic, and while agreeing with that evaluation's pick on only 72% of the landings:
 most of the disagreements are between moves that are both fine.
 
-Lift the cap and the difference shows. Side by side on the same pieces, an earlier version of the
-model died on piece 1759 with 688 rows while the heuristic played on to piece 15232 and 6092 rows
-on an almost empty board. The published controllers are measured in millions of rows per game, so
-the table above says what happens over 500 pieces and nothing about that regime.
+Lift the cap and the question changes from "does it play well" to "how long does it last". On one
+seed with no cap:
+
+| | pieces | rows | still alive |
+|---|---|---|---|
+| Decider-2B, every red line below | 35,874 | 14,338 | no |
+| Dellacherie heuristic | 75,004 | 30,000 | yes, stopped by the row cap |
+
+The published controllers are measured in millions of rows per game. The heuristic is not at its
+own ceiling in that table either; it was stopped, not beaten.
+
+**Rows are a saturated measure here.** Over the 14,338-row game the stack averaged 4.7 rows high
+with 0.6 buried cells, and every 2,500 pieces cleared exactly 1,000 rows: 2,500 pieces are 10,000
+cells and 1,000 rows are 10,000 cells, so no cell is wasted. Rows are therefore pieces times 0.4
+and one game is one sample of the only thing that varies, which is when it dies. The ruler used
+below is the climb: every time the stack passes twelve rows is a sample, and the game ends when one
+of those climbs does not come back down. The 14,338-row game survived 63 climbs; the 5,893-row
+game survived 19.
 
 ## How it got there
 
@@ -44,6 +58,11 @@ Nothing below is a reworded prompt. Each step changes what the model is told or 
 | put every landing in one question instead of a tournament of tens | 898 | 991 |
 | read the list backwards and add the probabilities when the top two are within 0.15 | 974 | 987 |
 | say in the instructions that a landing against a wall beats one in the middle | 987 | 987 |
+| (a tie in `settle` was broken by set iteration order, so one seed gave 3894, 1863 and 322 rows under the same flags; every row above this line predates the fix and every row below it is one uncapped game on seed 6) | | |
+| when the red line has to bury, offer only the landings that bury fewest | 3,396 | |
+| hide the landings that leave a gap three or more rows deep, while a shallower one exists | 5,893 | |
+| above fifteen rows, let a burying landing through when fewer than three clean ones remain | 9,981 | |
+| drop the landings that leave the next piece no landing of its own that buries nothing | 14,338 | |
 
 The two large jumps are both about information, not persuasion:
 
@@ -86,16 +105,29 @@ Kept here because each one is a measurement, and each one cost a few hundred gam
 | a next-piece fact ("the next piece can clear a row here") | worse on three of four seeds |
 | dropping landings that another landing beats on every fact at once | leaves a median of one option, so the code is playing, not the model |
 | sorting the options best-first | 844 rows against 822 for the enumeration order: position bias flips individual picks but does not carry a game |
+| relaxing the buried-cell red line at any height | 288 rows against 5,893; the same relaxation above fifteen rows reaches 9,981, so the height gate carries the whole effect |
+| letting a burying landing through when it clears two rows | 2,803 rows against 5,893 |
+| rewording which part of the stack the landing sits on | 3,882 rows against 5,893 |
+| raising the second-reading threshold from 0.15 to 0.3 | 2,462 rows against 5,893 |
+| Decider-2B v10 in place of v8, same flags and seed | 7,731 rows against 14,338. v10 is the more decisive model — mean confidence 0.65 against 0.58, and it asks for the second reading half as often — but it kept no cleaner a board and survived 31 climbs against 63. One game each: two samples of a heavy-tailed variable differ by two times a third of the time, so this says v10 is not better here, not that it is worse |
+| predicting a climb from the board | four measures were tried at the moment the stack first passes eight rows — buried cells, unevenness, how many landings survive the red lines, and how many of the seven pieces the stack can take without growing taller. None separates the 36 excursions that ran away from the 375 that did not |
 
 ## Running it
 
 ```bash
 uv sync
 uv run python -m decider_tetris.play --decider http://127.0.0.1:8000 \
-    --clean --group 20 --order enum --settle 0.15 --games 5 --max-pieces 500
+    --wording walls --group 20 --order enum --settle 0.15 \
+    --clean --grade --fills --least --gap any --relax 3 --high 15 --foresee 10 \
+    --seed 6 --max-pieces 200000 --postmortem death.json
 uv run python -m decider_tetris.play --games 5          # the heuristic alone, no model needed
 uv run python -m decider_tetris.race --decider http://127.0.0.1:8000    # both, side by side
 ```
+
+That line is the 14,338-row run. Every switch on it is one row of the table above, and the result
+line repeats all of them, so a number always says which flags produced it. `--seed` must be 1 or
+more: the environment reads `if seed and seed > 0`, so seed 0 is taken as no seed and the pieces
+come from the operating system, which makes a run look reproducible when it is not.
 
 `--decider` is the base URL of anything that answers `POST /v1/systemone`. For the open checkpoint,
 its own `decider.serve` works, though it captures a CUDA graph for 78 shapes before answering the
@@ -120,6 +152,8 @@ src/decider_tetris/
   view.py              the board drawn with the decision beside it
   web.py               the same player driving the published react-tetris page
   tournament_probe.py  asks one decision two ways to measure what grouping costs
+  regret.py            replays each disagreement with the heuristic and says what it cost
+tests/                 27 tests, including one per red line and one for the tie-break
 ```
 
 ## Credits
