@@ -191,13 +191,15 @@ Here, same flags and same seed, one game each:
 | | v8 | v10 |
 |---|---|---|
 | mean confidence | 0.578 | 0.649 |
-| second readings per piece | 0.211 | 0.094 |
+| second readings, per piece that reached the model | 0.397 | 0.256 |
 | mean buried cells | 0.615 | 0.620 |
 | climbs survived | 63 | 31 |
 | rows | 14,338 | 7,731 |
 
-v10 is the more decisive model and it asks for the second reading half as often, which makes it
-about ten per cent cheaper per piece. It did not keep a cleaner board and it did not last longer.
+v10 is the more decisive model and asks for the second reading less often, which makes it cheaper
+per piece. It did not keep a cleaner board and it did not last longer. The rate is counted over the
+pieces that reached the model: an eighth of all pieces have one option left after the red lines and
+never ask it anything, and counting those in understates both models.
 One game each is two samples of a heavy-tailed variable, and two such samples differ by two times a
 third of the time, so this says v10 is not better at this task — not that it is worse.
 
